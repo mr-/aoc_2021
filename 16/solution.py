@@ -66,13 +66,16 @@ def evaluate(op, l):
         return 1 if l[0] == l[1] else 0
 
 
-def parse_sub_packets(bits, level=0, expression_count=None):
+def parse_sub_packets(bits, limit={}):
     current_count = 0
     current_expression = ""
     current_expressions = []
 
+    if "subpacket_length" in limit:
+        return_bits = bits[limit["subpacket_length"]:]
+        bits = bits[:limit["subpacket_length"]]
 
-    while len(bits) >= 8 and (expression_count is None or current_count < expression_count ):
+    while len(bits) >= 8 and ((not "subpacket_count" in limit) or current_count < limit["subpacket_count"] ):
         current_count = current_count + 1
 
         header, bits = parse_header(bits)
@@ -84,19 +87,12 @@ def parse_sub_packets(bits, level=0, expression_count=None):
             current_expressions.append(val)
         else:
             operator_header, bits = parse_operator_header(bits)
-            if "subpacket_count" in operator_header:
-                exp, l, bits = parse_sub_packets(bits, level + 1, operator_header["subpacket_count"])
-                current_expression = current_expression + f" ({op} {exp}) "
-                current_expressions.append(evaluate(op, l))
-            else:
-                sub_bits = bits[:operator_header["subpacket_length"]]
-                exp, l, _ = parse_sub_packets(sub_bits, level + 1)
-                current_expression = current_expression + f" ({op} {exp}) "
-                bits = bits[operator_header["subpacket_length"]:]
-                current_expressions.append(evaluate(op, l))
+            exp, l, bits = parse_sub_packets(bits,  operator_header)
+            current_expression = current_expression + f" ({op} {exp}) "
+            current_expressions.append(evaluate(op, l))
 
 
-    return (current_expression, current_expressions, bits)
+    return (current_expression, current_expressions, return_bits if "subpacket_length" in limit else bits)
 
 
 
@@ -120,3 +116,16 @@ for ex in examples:
 
 input_bits = to_bits(puzzle_input)
 print(parse_sub_packets(input_bits))
+
+
+# output:
+
+# (' (sum  1  2 ) ', [3], '')
+# (' (prod  6  9 ) ', [54], '0000')
+# (' (min  7  8  9 ) ', [7], '0')
+# (' (max  7  8  9 ) ', [9], '00000')
+# (' (<  5  15 ) ', [1], '0000')
+# (' (>  5  15 ) ', [0], '')
+# (' (==  5  15 ) ', [0], '0000')
+# (' (==  (sum  1  3 )  (prod  2  2 ) ) ', [1], '00')
+# (' (sum  (prod  9  (<  90  258 ) )  (max  14  2 )  (min  15083  4  10 )  (min  46486  946644 )  47731  (prod  86  167  76  41  75 )  (prod  902426  (<  5448597  5448597 ) )  12  3150483273  46921  1756  (prod  3098  (==  241  11104915 ) )  (prod  (>  2338  2338 )  185954532 )  (prod  105  146  64  124 )  1619  (prod  183  (<  440674  103 ) )  (max  6937079  92140  209  592 )  (max  (prod  (min  (min  (max  (sum  (max  (prod  (max  (sum  (min  (sum  (sum  (min  (max  (sum  (max  (prod  (min  (min  5056208039 ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) ) )  455  256083  (sum  (prod  9  6  4 )  (prod  14  4  8 )  (prod  5  3  12 ) )  (min  11  208  70  1647  130 )  (prod  3586  (>  (sum  14  2  7 )  (sum  5  6  3 ) ) )  (prod  1045  (==  7539326  139 ) )  (prod  28505  (<  1344  46 ) )  (prod  (==  310846  310846 )  55133606844 )  2158747088  (max  50614281761 )  (prod  44 )  (prod  (sum  10  15  9 )  (sum  8  10  11 )  (sum  8  7  9 ) )  (prod  40917  (<  206  206 ) )  (prod  152  (>  664377  115979877 ) )  (prod  140  (<  (sum  10  14  15 )  (sum  13  6  7 ) ) )  (sum  3  204  122 )  (max  277  62608  143  3234  3179 )  (min  188615  4835  64264  685172 )  (prod  (>  (sum  9  11  15 )  (sum  9  7  10 ) )  7877750 )  (prod  22  (==  (sum  15  15  4 )  (sum  11  9  12 ) ) )  (prod  (>  31223  31223 )  126 )  (max  139455  2126  1316140047 )  (sum  57417  5 )  (prod  (>  2997  24470 )  177 )  13  (prod  97  128 )  (sum  85  37726  178  7  277352178 )  (prod  3851  (>  233881589634  2158 ) )  (sum  15 )  (prod  8  (<  6  2589 ) )  (prod
