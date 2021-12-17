@@ -37,7 +37,7 @@ def hits(velo, target):
 target = {"ul": (195, -67), "lr": (238, -93)}
 
 # max horizontal steps: "Exactly" get to 238: 253 = sum(23), so we get at most 23 steps to "fall down" until we
-# fall "vertially". Then we need some margin to definitely have a gap.
+# fall "vertially". Then we need some margin to definitely hit a gap falling down from 0.
 # We aways come down to 0 and we'll definitely miss it if the step is > 93 (the lower border of the target)
 
 # A lower bound is -100, otherwise we've missed the target in the first step.
