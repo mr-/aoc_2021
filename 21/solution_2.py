@@ -54,22 +54,6 @@ def do_step(thing, cutoff = 21):
     return (finished, rest)
 
 
-def get_counts(initial_pos, cutoff = 21):
-    thing = [{"pos": initial_pos, "val": 0, "cnt": 1}]
-
-    step_counts = {}
-    for i in range(1, 100):
-        finished, rest = do_step(thing, cutoff)
-
-        if len(finished) > 0:
-            step_counts[i] = sum([x["cnt"] for x in finished])
-
-        if len(rest) == 0:
-            return step_counts
-
-        thing = rest
-
-
 def cnts(l):
     return sum([ (x["cnt"]) for x in l])
 
