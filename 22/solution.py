@@ -130,10 +130,16 @@ def find_count(parsed_lines):
 
 parsed_lines = parse_file("sample1.txt")
 parsed_lines = parse_file("sample2.txt")
+
+
 parsed_lines = parse_file("input.txt")
 target = Rect([-50, 50], [-50, 50], [-50, 50])
 
 intersections = [maybe_intersect(target, x) for x in parsed_lines]
 
 
+print("Solution nr 1:")
 print(find_count([x for x in intersections if not x is None]))
+
+print("Solution nr 2:")
+print(find_count(parsed_lines))
