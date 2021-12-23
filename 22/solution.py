@@ -96,27 +96,16 @@ def find_count(parsed_lines):
     added = []
     removed = []
     for (command, rect) in parsed_lines:
+        new_removed = []
+        for a in added:
+            if intersects(rect, a):
+                new_removed.append(intersection(rect, a))
+        for a in removed:
+            if intersects(rect, a):
+                added.append(intersection(rect, a))
+        removed = removed + new_removed
         if command == "on":
-            new_removed = []
-            for a in added:
-                if intersects(rect, a):
-                    new_removed.append(intersection(rect, a))
-            for a in removed:
-                if intersects(rect, a):
-                    added.append(intersection(rect, a))
-            removed = removed + new_removed
             added.append(rect)
-
-        if command == "off":
-            new_removed = []
-
-            for a in added:
-                if intersects(rect, a):
-                    new_removed.append(intersection(rect, a))
-            for a in removed:
-                if intersects(rect, a):
-                    added.append(intersection(rect, a))
-            removed = removed + new_removed
 
         # print(
         #     f"added: {[str(x) for x in added]}")
