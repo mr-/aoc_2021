@@ -17,22 +17,16 @@ type Parser = Parsec Void String
 r0 ::  Parser String
 r0  = symbol "a"
 r8 ::  Parser String
-r8  = choice [try r0, try (r0 >> r8)]
+r8  = choice [try r0, try ((++) <$> r0 <*> r8)]
 rstart :: Parser String
-rstart = do
-  x <- r8
-  _ <- eof
-  return x
+rstart = r8 <* eof
 
-s0 ::  R.ReadP  Char
-s0  = R.char 'a'
-s8 ::  R.ReadP  Char
-s8  =  s0 R.+++ (s0 *> s8)
-sstart :: R.ReadP  Char
-sstart = do
-  x <-  s8
-  _ <- R.eof
-  return x
+s0 ::  R.ReadP  String
+s0  = (: []) <$> R.char 'a'
+s8 ::  R.ReadP  String
+s8  =  s0 R.+++ ( (++) <$> s0 <*> s8)
+sstart :: R.ReadP  String
+sstart = s8 <* R.eof
 
 
 sc = L.space (skipSome (char ' ')) A.empty A.empty
