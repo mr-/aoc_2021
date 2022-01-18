@@ -22,7 +22,7 @@ rstart :: Parser String
 rstart = r8 <* eof
 
 s0 ::  R.ReadP  String
-s0  = (: []) <$> R.char 'a'
+s0  =  R.string "a"
 s8 ::  R.ReadP  String
 s8  =  s0 R.+++ ( (++) <$> s0 <*> s8)
 sstart :: R.ReadP  String
