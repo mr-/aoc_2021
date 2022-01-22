@@ -18,7 +18,7 @@ main = do
   content <- readFile "input.txt"
   let d = fromJust $ parseMaybe parseInput content
   let ex = explode d
-  let ingredientsByAllergen = candidates ex
+  let ingredientsByAllergen = intersections ex
   let possibleIngredients = foldr1 S.union (M.elems ingredientsByAllergen)
   let allIngredients = concatMap snd d
   let inertIngredients = [ing | ing <- allIngredients, not $ S.member ing possibleIngredients]
@@ -40,8 +40,8 @@ reduce byAllergen
         removed = M.map (\ing -> ing `S.difference` singletonIngredients) rest
      in singletonList ++ reduce removed
 
-candidates :: [(String, [String])] -> M.Map String (S.Set String)
-candidates = foldr (\a b -> M.insertWith S.intersection (fst a) (S.fromList (snd a)) b) M.empty
+intersections :: [(String, [String])] -> M.Map String (S.Set String)
+intersections = foldr (\a b -> M.insertWith S.intersection (fst a) (S.fromList (snd a)) b) M.empty
 
 explode :: [([String], [String])] -> [(String, [String])]
 explode d = [(allergen, ingredients) | (allergens, ingredients) <- d, allergen <- allergens]
