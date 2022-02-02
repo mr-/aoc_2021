@@ -30,7 +30,29 @@ main = do
   let orbits = fromJust $ parseMaybe parseFile content
   let tree = toTree orbits
   -- putStr $ drawTree tree
+  print "Solution 1"
   print $ depthSum tree
+  let paths = map snd $ findPaths tree "YOU" "SAN"
+  let (a, b) = dropCommonPrefix (head paths) (paths !! 1)
+  print "Solution 2"
+  print $ length b -1 + length a -1
+
+dropCommonPrefix :: [String] -> [String] -> ([String], [String])
+dropCommonPrefix a@(x : xs) b@(y : ys)
+  | y == x = dropCommonPrefix xs ys
+  | otherwise = (a, b)
+dropCommonPrefix a b = error "dropCommonPrefix WTF"
+
+findPaths :: Tree String -> String -> String -> [(String, [String])]
+findPaths tree x y =
+  let ps = paths tree
+      res = filter (\(a, as) -> a == x || a == y) ps
+   in res
+
+paths :: Tree a -> [(a, [a])]
+paths = foldTree algebra
+  where
+    algebra a as = (a, [a]) : map (\(i, is) -> (i, a : is)) (concat as)
 
 type Orbit = (String, String)
 
